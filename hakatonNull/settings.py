@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-3+!2(jkm9donfz)jk9c4yvkkp$z(bnve*t600n!wo3ga2o-5it
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -123,3 +123,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Брокер сообщений (используем Redis)
+CELERY_BROKER_URL = 'redis://localhost:6379/'
+
+# Результаты задач будут храниться в Redis
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/'
+
+# Дополнительные настройки Celery
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
