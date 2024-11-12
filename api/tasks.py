@@ -1,3 +1,5 @@
+from datetime import datetime
+import pytz
 from celery import shared_task
 import time
 import cv2
@@ -9,8 +11,8 @@ from .models import PeopleData
 def count_people(place, filename, file_content):
     # return str(settings.BASE_DIR)
 
-    yolov3_weights = 'yolov3.weights'
-    yolov3_cfg = 'yolov3.cfg'
+    yolov3_weights = 'static/cfg/yolov3.weights'
+    yolov3_cfg = 'static/cfg/yolov3.cfg'
 
     yolo_net = cv2.dnn.readNet(yolov3_weights, yolov3_cfg)
     layer_names = yolo_net.getLayerNames()
@@ -59,7 +61,7 @@ def count_people(place, filename, file_content):
     num_people = sum(1 for i in indices.flatten() if class_ids[i] == 0)
 
     try:
-        people_data = PeopleData(place=place, people_count=num_people)
+        people_data = PeopleData(place=place, people_count=num_people, datetime=datetime.now(pytz.timezone('Europe/Moscow')))
         people_data.save()
         return {'success': True, 'num_people': num_people}
     except Exception as e:

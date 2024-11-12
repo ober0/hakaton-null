@@ -1,9 +1,10 @@
 import json
 import os
-
+from datetime import datetime
 import cv2
+import pytz
 
-from .models import Temperature, Noice, Humidity, PeopleData
+from .models import Temperature, Noice, Humidity
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -15,9 +16,8 @@ from django.conf import settings
 def setTemperature(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
-            temperature_val = data['temperature']
-            place = data['place']
+            temperature_val = request.POST.get('temperature')
+            place = request.POST.get('place')
         except Exception as e:
             return JsonResponse({
                 'success': False,
@@ -25,7 +25,7 @@ def setTemperature(request):
             })
 
         try:
-            temperature = Temperature(place=place, temperature=temperature_val)
+            temperature = Temperature(place=place, temperature=temperature_val, datetime=datetime.now(pytz.timezone('Europe/Moscow')))
             temperature.save()
             return JsonResponse({'success': True})
         except Exception as e:
@@ -38,9 +38,8 @@ def setTemperature(request):
 def setHumidity(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
-            humidity_val = data['humidity']
-            place = data['place']
+            humidity_val = request.POST.get('humidity')
+            place = request.POST.get('place')
         except Exception as e:
             return JsonResponse({
                 'success': False,
@@ -48,7 +47,7 @@ def setHumidity(request):
             })
 
         try:
-            humidity = Humidity(place=place, humidity=humidity_val)
+            humidity = Humidity(place=place, humidity=humidity_val, datetime=datetime.now(pytz.timezone('Europe/Moscow')))
             humidity.save()
             return JsonResponse({'success': True})
         except Exception as e:
@@ -61,9 +60,8 @@ def setHumidity(request):
 def setNoice(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
-            place = data['place']
-            noice_val = data['noice']
+            place = request.POST.get('place')
+            noice_val = request.POST.get('noice')
         except Exception as e:
             return JsonResponse({
                 'success': False,
@@ -71,7 +69,7 @@ def setNoice(request):
             })
 
         try:
-            noice = Temperature(place=place, noice=noice_val)
+            noice = Noice(place=place, noice=noice_val, datetime=datetime.now(pytz.timezone('Europe/Moscow')))
             noice.save()
             return JsonResponse({'success': True})
         except Exception as e:
@@ -87,6 +85,7 @@ def setPeopleData(request):
         try:
             # Получаем данные формы
             place = request.POST.get('place')
+
             file = request.FILES.get('file')
 
             if file:
