@@ -1,47 +1,61 @@
 import cv2
 import time
 import requests
-import json
 from io import BytesIO
+import random
+import logging
 
-# Настройки для видеопотока
-capture_interval = 5  # Интервал между кадрами в секундах
-url = "http://127.0.0.1:8000/api/data/set/peopleData/"
-place_name = "floor4"  # Название места, передается в JSON
+# Настройка логирования
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Инициализация камеры
-cap = cv2.VideoCapture(0)
-if not cap.isOpened():
-    print("Error: Could not open camera.")
-    exit()
+# URL для отправки данных
+url_temperature = "http://192.168.137.52:8000/api/data/set/temperature/"
+url_humidity = "http://192.168.137.52:8000/api/data/set/humidity/"
+url_noise = "http://192.168.137.52:8000/api/data/set/noice/"
+url_people_data = "http://192.168.137.52:8000/api/data/set/peopleData/"
+place_name = 'floor4'
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        print("Error: Frame capture failed.")
-        break
+# Интервалы отправки данных
+capture_interval = 5  # Интервал захвата изображения в секундах
 
-    # Сохранение кадра в памяти как изображение JPEG
-    _, img_encoded = cv2.imencode('.jpg', frame)
-    img_bytes = BytesIO(img_encoded)
-
-    # Формирование данных для отправки
-    files = {'file': ('frame.jpg', img_bytes, 'image/jpeg')}
-    data = {'place': place_name}
-
+def send_data(url, data, files=None):
+    """Функция для отправки данных на сервер."""
     try:
-        # Отправка данных на сервер
         response = requests.post(url, data=data, files=files)
         if response.status_code == 200:
-            print("Frame sent successfully.")
+            logging.info(f"Данные успешно отправлены на {url}.")
         else:
-            print(f"Error: Failed to send frame - Status code {response.status_code}")
-
+            logging.error(f"Ошибка: Не удалось отправить данные на {url} - Статус код {response.status_code}")
     except requests.exceptions.RequestException as e:
-        print(f"Request error: {e}")
+        logging.error(f"Ошибка запроса к {url}: {e}")
 
-    # Задержка перед следующим кадром
+    print(response.json())
+# Главный цикл для отправки данных
+start_time_img = time.time()
+start_time_sensors = time.time()
+
+while True:
+    # Симуляция данных от сенсоров
+    temperature = round(random.uniform(20.0, 30.0), 1)
+    humidity = round(random.uniform(30.0, 70.0), 1)
+    noice = round(random.uniform(40.0, 80.0), 1)
+
+    # Формируем JSON данные для каждого датчика и отправляем
+    data_temperature = {'place': place_name, 'temperature': temperature}
+    send_data(url_temperature, data_temperature)
+
+    data_humidity = {'place': place_name, 'humidity': humidity}
+    send_data(url_humidity, data_humidity)
+
+    data_noise = {'place': place_name, 'noice': noice}
+    send_data(url_noise, data_noise)
+
+    # Открытие изображения и отправка его
+    with open('photo_2024-11-12_14-08-11.jpg', 'rb') as f:
+        files = {'file': f}
+        data_img = {'place': place_name}
+        send_data(url_people_data, data_img, files=files)
+
+
+    # Задержка между кадрами
     time.sleep(capture_interval)
-
-# Освобождение камеры
-cap.release()

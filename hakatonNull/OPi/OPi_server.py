@@ -29,8 +29,6 @@ while True:
 
     while len(data) < msg_size:
         data += client_socket.recv(4 * 1024)
-
-    frame_data = data[:msg_size]
     data = data[msg_size:]
 
     # Декодируем кадр
