@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api'
+    'api',
+    'main'
 ]
 
 MIDDLEWARE = [
@@ -137,4 +138,4 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
 
-ADRESS = 'http://192.168.137.88:8000/'
+ADRESS = 'http://127.0.0.1:8000/'

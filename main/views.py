@@ -1,20 +1,21 @@
 import base64
-
 import matplotlib
 import pytz
-
+from django.http import JsonResponse
+from .models import Question
 matplotlib.use('Agg')
 from datetime import timezone, timedelta
 import matplotlib.pyplot as plt
 import numpy as np
 import io
-import urllib
 import matplotlib.dates as mdates
 from datetime import timedelta
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
-from api.models import PeopleData
+from api.models import PeopleData, Humidity, Temperature
 from django.utils import timezone
+from django.conf import settings
+import requests
 
 def home(request):
     return redirect('administration_question')
@@ -28,6 +29,14 @@ def viewData(request):
             place = 'floor4'
         now = timezone.now()
 
+        url = settings.ADRESS + 'api/model/' + place + '/'
+
+        my_request = requests.post(url)
+        if my_request.status_code == 200:
+            response = my_request.json()
+            task_id = response['task_id']
+        else:
+            return JsonResponse({'error': 'prediction failed'})
         # Фильтруем данные за последний час
         one_hour_ago = now - timedelta(hours=1)
         people_data_hour = PeopleData.objects.filter(place=place, datetime__gte=one_hour_ago).order_by('datetime')
@@ -106,16 +115,18 @@ def viewData(request):
 
             # Для графика за час
             ax[0].xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
-            ax[0].set_xticks(time_dt_hour[::int(len(time_dt_hour) / 6)])  # Показывать 6 меток по времени
+            step_hour = max(1, int(len(time_dt_hour) / 6))
+            ax[0].set_xticks(time_dt_hour[::step_hour])
             ax[0].set_xticklabels(
-                [time.astimezone(msk_tz).strftime('%H:%M') for time in time_dt_hour[::int(len(time_dt_hour) / 6)]],
+                [time.astimezone(msk_tz).strftime('%H:%M') for time in time_dt_hour[::step_hour]],
                 rotation=45)
 
             # Для графика за сутки
             ax[1].xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
-            ax[1].set_xticks(time_dt_day[::int(len(time_dt_day) / 6)])  # Показывать 6 меток по времени
+            step_day = max(1, int(len(time_dt_day) / 6))  # calculate step for day data
+            ax[1].set_xticks(time_dt_day[::step_day])
             ax[1].set_xticklabels(
-                [time.astimezone(msk_tz).strftime('%H:%M') for time in time_dt_day[::int(len(time_dt_day) / 6)]],
+                [time.astimezone(msk_tz).strftime('%H:%M') for time in time_dt_day[::step_day]],
                 rotation=45)
 
         # Сохранение графика в памяти (в формате PNG)
@@ -127,15 +138,41 @@ def viewData(request):
         image_data = base64.b64encode(buf.read()).decode('utf-8')
         buf.close()
 
+        people = PeopleData.objects.filter(place=place).latest('datetime')
+        humidity = Humidity.objects.filter(place=place).latest('datetime')
+        temperature = Temperature.objects.filter(place=place).latest('datetime')
         # Передаем данные в шаблон
         context = {
             'image_data': image_data,
+            'task_id': task_id,
+            'people_count':people,
+            'humidity':humidity,
+            'temperature': temperature
         }
+
 
         return render(request, 'main/index.html', context)
 
 def question(request):
-    return render(request, 'main/question.html')
+    if request.method == 'GET':
+        return render(request, 'main/question.html')
+    else:
+        data = request.POST
 
+        name = data['name']
+        email = data['email']
+        subject = data['rating']
+        message = data['message']
+
+        try:
+            question = Question(name=name, email=email, subject=subject, message=message)
+            question.save()
+        except:
+            pass
+
+        return redirect('/')
 def nutrition(request):
-    return render(request, 'main/nutrition.html')
+    if request.method == 'GET':
+        return render(request, 'main/nutrition.html')
+    else:
+        return JsonResponse({})

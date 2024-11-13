@@ -1,13 +1,17 @@
+from datetime import datetime
+
+import pytz
 import requests
 
-url = 'http://192.168.137.88:8000/api/data/set/peopleData/'
+url = 'http://192.168.137.52:8000/api/data/set/peopleData/'
 
 # Открываем файл для отправки
 with open('photo.jpg', 'rb') as f:
     # Подготовка данных для отправки
     files = {'file': f}
     data = {
-        'place': 'floor4'
+        'place': 'floor4',
+        'time': datetime.now(pytz.timezone('Europe/Moscow')).strftime('%Y-%m-%d %H:%M:%S')
     }
 
     # Отправляем POST-запрос

@@ -30,7 +30,7 @@ def count_people(place, filename, file_content):
             class_id = np.argmax(scores)
             confidence = scores[class_id]
 
-            if confidence > 0.6:  # Повышаем порог уверенности
+            if confidence > 0.3:  # Повышаем порог уверенности
                 center_x = int(detection[0] * width)
                 center_y = int(detection[1] * height)
                 w = int(detection[2] * width)
@@ -45,7 +45,7 @@ def count_people(place, filename, file_content):
                 class_ids.append(class_id)
 
     # Применяем Non-Maximum Suppression для устранения дублирующихся боксов
-    indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.6, 0.4)  # Увеличиваем параметры NMS
+    indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.2)  # Увеличиваем параметры NMS
 
     # Рисуем результаты, фильтруем только людей (класс 0)
     num_people = 0

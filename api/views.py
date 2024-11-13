@@ -108,6 +108,7 @@ def setPeopleData(request):
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
+@csrf_exempt
 def model(request, place):
     people_data = PeopleData.objects.filter(place=place).all()
     data = {
@@ -118,6 +119,7 @@ def model(request, place):
     model_task_id = task.id
     return JsonResponse({'task_id': model_task_id})
 
+@csrf_exempt
 def resultPredict(request, taskId):
     result = AsyncResult(taskId)
 
@@ -125,7 +127,6 @@ def resultPredict(request, taskId):
 
     if status == 'SUCCESS':
         data = result.result
-    print(data)
-
-    return JsonResponse({})
+        print(data)
+    return JsonResponse(data)
 

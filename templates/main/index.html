@@ -1,58 +1,103 @@
-<!DOCTYPE html>
-<html lang="en">
+{% load static %}
 <head>
     <meta charset="UTF-8">
-    <title>Главная</title>
-    <style>
-        *{
-            margin: 0;
-        }
-
-        header{
-            background-color: lightgray;
-            padding: 20px;
-            display: flex
-        }
-
-        section{
-            display: flex;
-            margin-top: 20px;
-            gap: 4%;
-            padding-left: 4%;
-        }
-
-        section div{
-            background-color: lightgray;
-            width: 44%;
-            height: 300px;
-            position: relative;
-
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'main/css/index.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
-    <header >
-        <h1>Лого</h1>
-        <div class="btns" style="display: flex; margin-left: auto">
-            <input type="button" value="Питание">
-            <input type="button" value="Связь с администрацией">
-            <input type="button" value="Данные о этажах">
+    <header class="header" >
+        <div class="header__logo" style="width: fit-content;">
+            <img class="logo" src="{% static 'main/img/logo.png' %}" alt="лого">
         </div>
+        <nav class="header__menu">
+            <button url="{% url 'nutrition' %}" class="button1 btn btn-outline-primary">Столовая</button>
+            <button url="{% url 'administration_question' %}" type="button" class="button1 btn btn-outline-primary">Связь с администрацией</button>
+            <button url="{% url 'admins' %}" type="button" class="button1 btn btn-outline-primary">Админ-меню</button>
+            
+        </nav>
     </header>
-
-    <section class="body">
-        <div class="data">
-
-        </div>
-
-        <div class="graphics">
-           <h1>Графики количества людей</h1>
+    <input type="hidden" id="task_id" value="{{ task_id }}">
+    <div class="container_blocks">
+       <div class="block1">
+        <img style="width: 100%" src="data:image/png;base64,{{ image_data }}" alt="">
+       </div>
 
 
-        <img style="width: 100%" src="data:image/png;base64,{{ image_data }}" alt="График за последний час">
+       <div class="block2">
+        <h3>Данные в реальном времени:</h3>
+        <p>Сейчас людей: {{ people_count }}</p>
+        <p>Влажность воздуха: {{ humidity }}</p>
+        <p>Температура воздуха: {{ temperature }}</p>
+           <hr>
+        <h3>Предсказание загруженности</h3>
+           <div style="display: flex; gap: 5px; justify-content: center">
+               <p>Через 5мин. :</p>
+               <p id="min5">...</p>
+           </div>
+           <div style="display: flex; gap: 5px; justify-content: center">
+               <p>Через 15мин. :</p>
+               <p id="min15">...</p>
+           </div>
+
+       </div>
+
+       
+    </div> 
 
 
-    </section>
-
+    <hr>
+<!-- <p class="textdown">Copyright © 2024 ГБПОУ Колледж связи №54 -->
+</p>
+</div>
+    </div>
+    <div style="text-align: center;margin-bottom: 10px">
+        <div class="icons"></div>
+        <button url="https://vk.com/ks54ru" type="button" class="button1 btn btn-secondary"><img src="https://cdn-icons-png.flaticon.com/128/13670/13670462.png" width="20" height="20"></button>
+        <button url="https://t.me/ks54ru" type="button" class="button1 btn btn-secondary"><img src="https://cdn-icons-png.flaticon.com/128/739/739260.png" width="20" height="20"></button>
+        <button url="https://t.me/otdelenie_ikt_bot" type="button" class="button1 btn btn-secondary"><img src="https://cdn-icons-png.flaticon.com/512/1170/1170646.png" width="20" height="20"></button>
+    </div>
+    <p class="textdown">Copyright © 2024 ГБПОУ Колледж связи №54
+</p>
+    <p class="textdown">https://github.com/ober0</p>
+</div>  
 </body>
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            document.querySelectorAll('.button1').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    let url = btn.getAttribute('url')
+                    window.location.href = url
+                })
+            })
+
+            let task_id = document.getElementById('task_id').value;
+
+            function fetchDataWithRetry() {
+                fetch(`/api/result/get/model/${task_id}/`, {
+                    method: 'POST'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Request failed with status ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('min5').innerText = data['5m']
+                    document.getElementById('min15').innerText = data['15m']
+
+                })
+                .catch(error => {
+                    console.error('Request failed, retrying in 1 second:', error);
+                    // Если запрос не удался, повторяем через 1 секунду
+                    setTimeout(fetchDataWithRetry, 1000);
+                });
+            }
+            fetchDataWithRetry();
+        });
+
+    </script>
 </html>

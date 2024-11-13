@@ -1,0 +1,100 @@
+/* Центрирование контейнера */
+
+*{}
+.contact-container {
+
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9; /* Светло-серый фон */
+    border: 1px solid #ddd; /* Тонкая рамка */
+    border-radius:  10px; /* Округлые углы */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Легкая тень */
+}
+
+/* Заголовок и текст */
+.contact-container h2 {
+    text-align: center;
+    color: #333;
+}
+
+.contact-container p {
+    text-align: center;
+    color: #666;
+}
+
+/* Стили для формы */
+#contactForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* #contactForm label {
+    font-weight: bold;
+    color: #333;
+}
+
+#contactForm input, #contactForm textarea, #contactForm button {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#contactForm input, #contactForm textarea {
+    width: 100%;
+}
+
+#contactForm button {
+    background-color: #4CAF50; /* Зеленая кнопка */
+    color: white;
+    border: none;
+    cursor: pointer;
+}   
+
+#contactForm button:hover {
+    background-color: #45a049;
+}
+
+
+/* nav a {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 15px;
+    transition: background 0.3s;
+}
+.nav header__menu:hover {
+    background: #575757;
+} */
+.button_header {
+
+    width: 196px;
+    height: 46px;
+    background-color: #FF6A00;
+    border-radius: 3px;
+    color: white;
+    transition: background 0.3s;
+    border: 0;
+    font-family: 'PT Sans';
+    font-size: 16px;
+    cursor: pointer;
+    
+}
+
+.button_header:hover { 
+    background-color: #ffffff;
+    color: #FF6A00;
+    border: 1px solid #e28f54 ;
+}
+
+.header__menu{
+    transition:
+} 
+hr {
+    border: none; /* Убираем стандартные границы */
+    height: 2px; /* Высота линии */
+    background-color: #ccc; /* Цвет линии */
+    width: 100%; /* Делаем линию на всю ширину страницы */
+    margin: 20px 0; /* Отступы сверху и снизу */
+}

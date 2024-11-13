@@ -51,7 +51,7 @@ def count_people(place, filename, file_content, time):
             class_id = np.argmax(scores)
             confidence = scores[class_id]
 
-            if confidence > 0.6:
+            if confidence > 0.3:
                 center_x = int(detection[0] * width)
                 center_y = int(detection[1] * height)
                 w = int(detection[2] * width)
@@ -64,7 +64,7 @@ def count_people(place, filename, file_content, time):
                 confidences.append(float(confidence))
                 class_ids.append(class_id)
 
-    indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.6, 0.4)
+    indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.2)
     try:
         num_people = sum(1 for i in indices if class_ids[i] == 0)
     except AttributeError:
@@ -105,6 +105,7 @@ def doModel(place, data):
     prediction_15min = model_15min.predict(current_count)[0]
 
     return {
+        'success': True,
         '5m': int(prediction_5min),
         '15m': int(prediction_15min)
     }

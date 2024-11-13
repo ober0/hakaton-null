@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+
+* {
+    margin: 0;
+font-family: 'PT Sans';
+}
+body {
+    /* overflow: hidden; */
+}
+
+.header {
+    display: flex;
+    /* justify-content: space-between; */
+    align-items: center;
+    height: 60px;
+    background-color: #eac793;
+
+    justify-content: center;
+}
+
+.header__menu {
+    display: flex;
+    gap: 10px;
+    width: 450px;
+    justify-content: center;
+}
+
+.logo {
+    width: 70px;
+    height: 70px;
+    margin: 0;
+    margin-left: 25px;
+
+
+    }
+
+
+.header__logo {
+    display: block;
+    margin: 0;
+}
+
+.container_blocks {
+    display: flex;
+    justify-items: center;
+    padding: 45px;
+    gap: 50px;
+
+}
+
+/* .block1, .block2{
+    padding: ;
+} */
+
+.block1 {
+width: 65%;
+height: fit-content;
+border: 1px solid lightgray;
+border-radius: 10px;
+padding: 10px;
+
+}
+
+.block2 {
+    width: 35%;
+    height: fit-content;
+    border: 1px solid lightgray;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    }
+
+.photo1SIZE{
+    width: 200px;
+    height: 200px;
+}
+
+.photo1SIZE1{
+    width: 250px;
+    height: 250px;
+}
+/* h1{
+    margin: 0;
+} */
+
+.contener__half {
+
+    width: 770px;
+    height: 275px;
+}
+
+.button1{
+    border: none !important;
+    transition: all 0.4s !important;
+}
+
+.copyright {
+    justify-content: center;
+    display: flex;
+}
+
+.btn btn-secondary {
+    justify-items: center;
+    align-items: center;
+}
+
+.textdown {
+    display: flex;
+    justify-content: center;
+}
+
+
+.icons {
+
+    justify-content: center;
+    align-items: center;
+}
