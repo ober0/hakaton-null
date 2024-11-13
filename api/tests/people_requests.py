@@ -1,6 +1,6 @@
 import requests
 
-url = 'http://127.0.0.1:8000/api/data/set/peopleData/'
+url = 'http://192.168.137.88:8000/api/data/set/peopleData/'
 
 # Открываем файл для отправки
 with open('photo.jpg', 'rb') as f:

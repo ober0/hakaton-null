@@ -3,12 +3,12 @@ import os
 from datetime import datetime
 import cv2
 import pytz
-
-from .models import Temperature, Noice, Humidity
+from celery.result import AsyncResult
+from .models import Temperature, Noice, Humidity, PeopleData
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from .tasks import count_people
+from .tasks import count_people, doModel
 from django.conf import settings
 
 
@@ -85,14 +85,18 @@ def setPeopleData(request):
         try:
             # Получаем данные формы
             place = request.POST.get('place')
-
             file = request.FILES.get('file')
-
+            time = request.POST.get('time')
             if file:
-                # yolov3_weights = 'yolov3.weights'
-                # yolov3_cfg = 'yolov3.cfg'
-                # yolo_net = cv2.dnn.readNet(yolov3_weights, yolov3_cfg)
-                count_people.delay(place, file.name, file.read())  # передаем имя файла и содержимое
+                # Сохраняем файл на диск
+                with open("image.jpg", 'wb') as f:
+                    for chunk in file.chunks():
+                        f.write(chunk)
+
+                # Перемещаем курсор в начало файла для его чтения
+                file.seek(0)
+                # Передаем имя файла и его содержимое (в виде байтов) в Celery задачу
+                count_people.delay(place, file.name, file.read(), time)
 
                 return JsonResponse({'success': True})
 
@@ -103,3 +107,25 @@ def setPeopleData(request):
             return JsonResponse({'success': False, 'error': str(e)})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def model(request, place):
+    people_data = PeopleData.objects.filter(place=place).all()
+    data = {
+        'time': [entry.datetime for entry in people_data],
+        'people': [entry.people_count for entry in people_data]
+    }
+    task = doModel.delay(place, data)
+    model_task_id = task.id
+    return JsonResponse({'task_id': model_task_id})
+
+def resultPredict(request, taskId):
+    result = AsyncResult(taskId)
+
+    status = result.status
+
+    if status == 'SUCCESS':
+        data = result.result
+    print(data)
+
+    return JsonResponse({})
+
