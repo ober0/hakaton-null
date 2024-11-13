@@ -19,6 +19,7 @@ from django.utils import timezone
 def home(request):
     return redirect('administration_question')
 
+
 @user_passes_test(lambda u: u.is_superuser, login_url='/admin/login/')
 def viewData(request):
     if request.method == 'GET':
@@ -76,8 +77,10 @@ def viewData(request):
                 return interpolated_times, interpolated_counts
 
             # Интерполируем данные для графиков (по 1 минуте)
-            interpolated_times_hour, interpolated_counts_hour = interpolate_data(times_hour, people_counts_hour, step_seconds=60)
-            interpolated_times_day, interpolated_counts_day = interpolate_data(times_day, people_counts_day, step_seconds=60)
+            interpolated_times_hour, interpolated_counts_hour = interpolate_data(times_hour, people_counts_hour,
+                                                                                 step_seconds=60)
+            interpolated_times_day, interpolated_counts_day = interpolate_data(times_day, people_counts_day,
+                                                                               step_seconds=60)
 
             # Преобразуем данные времени в datetime объекты для правильного отображения
             time_dt_hour = [min(times_hour) + timedelta(seconds=t) for t in interpolated_times_hour]
@@ -88,22 +91,32 @@ def viewData(request):
 
             # График за последний час
             ax[0].plot(time_dt_hour, interpolated_counts_hour, marker='o', linestyle='-', color='b',
-                    label='График кол-ва людей (час)')
+                       label='График кол-ва людей (час)')
             ax[0].set(xlabel='Время (часы:минуты)', ylabel='Число людей', title=f'Количество людей за час в ({place})')
             ax[0].legend()
 
             # График за последний день
             ax[1].plot(time_dt_day, interpolated_counts_day, marker='o', linestyle='-', color='r',
-                    label='График кол-ва людей (сутки)')
+                       label='График кол-ва людей (сутки)')
             ax[1].set(xlabel='Время (часы:минуты)', ylabel='Число людей', title=f'Количетво людей за сутки в ({place})')
             ax[1].legend()
 
             # Настроим формат времени на оси X в московском часовом поясе
             msk_tz = pytz.timezone('Europe/Moscow')
+
+            # Для графика за час
             ax[0].xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+            ax[0].set_xticks(time_dt_hour[::int(len(time_dt_hour) / 6)])  # Показывать 6 меток по времени
+            ax[0].set_xticklabels(
+                [time.astimezone(msk_tz).strftime('%H:%M') for time in time_dt_hour[::int(len(time_dt_hour) / 6)]],
+                rotation=45)
+
+            # Для графика за сутки
             ax[1].xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
-            ax[0].set_xticklabels([time.astimezone(msk_tz).strftime('%H:%M') for time in time_dt_hour])
-            ax[1].set_xticklabels([time.astimezone(msk_tz).strftime('%H:%M') for time in time_dt_day])
+            ax[1].set_xticks(time_dt_day[::int(len(time_dt_day) / 6)])  # Показывать 6 меток по времени
+            ax[1].set_xticklabels(
+                [time.astimezone(msk_tz).strftime('%H:%M') for time in time_dt_day[::int(len(time_dt_day) / 6)]],
+                rotation=45)
 
         # Сохранение графика в памяти (в формате PNG)
         buf = io.BytesIO()
