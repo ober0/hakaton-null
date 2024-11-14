@@ -130,3 +130,24 @@ def resultPredict(request, taskId):
         print(data)
     return JsonResponse(data)
 
+
+def getActualData(request, place):
+    if request.method == 'POST':
+        try:
+            people = PeopleData.objects.filter(place=place).latest('datetime')
+            humidity = Humidity.objects.filter(place=place).latest('datetime')
+            temperature = Temperature.objects.filter(place=place).latest('datetime')
+
+            context = {
+                'success': True,
+                'people_count': str(people),
+                'humidity': str(humidity),
+                'temperature': str(temperature)
+            }
+
+            return JsonResponse(context)
+        except:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })

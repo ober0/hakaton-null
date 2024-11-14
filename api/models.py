@@ -1,7 +1,7 @@
 from django.db import models
-from datetime import datetime
 import pytz
 
+# Указываем Московскую временную зону
 moscow_time = pytz.timezone('Europe/Moscow')
 
 class Temperature(models.Model):
@@ -10,7 +10,9 @@ class Temperature(models.Model):
     temperature = models.FloatField(null=False)
 
     def __str__(self):
-        return f"{self.datetime.strftime('%H:%M')} - {self.temperature}°C"
+        # Конвертируем время в Московское перед выводом
+        moscow_datetime = self.datetime.astimezone(moscow_time)
+        return f"{moscow_datetime.strftime('%H:%M')} - {self.temperature}°C"
 
     class Meta:
         ordering = ['-datetime']
@@ -24,7 +26,8 @@ class Humidity(models.Model):
     humidity = models.FloatField(null=False)
 
     def __str__(self):
-        return f"{self.datetime.strftime('%H:%M')} - {self.humidity}"
+        moscow_datetime = self.datetime.astimezone(moscow_time)
+        return f"{moscow_datetime.strftime('%H:%M')} - {self.humidity}"
 
     class Meta:
         ordering = ['-datetime']
@@ -38,7 +41,8 @@ class Noice(models.Model):
     noice = models.FloatField(null=False)
 
     def __str__(self):
-        return f"{self.datetime.strftime('%H:%M')} - {self.noice}Дц"
+        moscow_datetime = self.datetime.astimezone(moscow_time)
+        return f"{moscow_datetime.strftime('%H:%M')} - {self.noice}Дц"
 
     class Meta:
         ordering = ['-datetime']
@@ -52,7 +56,8 @@ class PeopleData(models.Model):
     people_count = models.IntegerField(null=False)
 
     def __str__(self):
-        return f"{self.datetime.strftime('%H:%M')} - {self.people_count}чел."
+        moscow_datetime = self.datetime.astimezone(moscow_time)
+        return f"{moscow_datetime.strftime('%H:%M')} - {self.people_count}чел."
 
     class Meta:
         ordering = ['-datetime']

@@ -147,7 +147,8 @@ def viewData(request):
             'task_id': task_id,
             'people_count':people,
             'humidity':humidity,
-            'temperature': temperature
+            'temperature': temperature,
+            'place': place
         }
 
 

@@ -7,6 +7,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
+    {% csrf_token %}
+    <input type="hidden" id="task_id" value="{{ task_id }}">
+    <input type="hidden" id="place" value="{{ place }}">
     <header class="header" >
         <div class="header__logo" style="width: fit-content;">
             <img class="logo" src="{% static 'main/img/logo.png' %}" alt="лого">
@@ -18,7 +21,7 @@
             
         </nav>
     </header>
-    <input type="hidden" id="task_id" value="{{ task_id }}">
+
     <div class="container_blocks">
        <div class="block1">
         <img style="width: 100%" src="data:image/png;base64,{{ image_data }}" alt="">
@@ -27,9 +30,9 @@
 
        <div class="block2">
         <h3>Данные в реальном времени:</h3>
-        <p>Сейчас людей: {{ people_count }}</p>
-        <p>Влажность воздуха: {{ humidity }}</p>
-        <p>Температура воздуха: {{ temperature }}</p>
+        <p id="people_count">Сейчас людей: {{ people_count }}</p>
+        <p id="humidity">Влажность воздуха: {{ humidity }}</p>
+        <p id="temperature">Температура воздуха: {{ temperature }}</p>
            <hr>
         <h3>Предсказание загруженности</h3>
            <div style="display: flex; gap: 5px; justify-content: center">
@@ -96,7 +99,32 @@
                     setTimeout(fetchDataWithRetry, 1000);
                 });
             }
-            fetchDataWithRetry();
+            fetchDataWithRetry()
+            setInterval(fetchDataWithRetry, 10000)
+
+
+            function getActualData() {
+                const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+                const place = document.getElementById('place').value
+
+                fetch(`/api/data/get/${place}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success){
+                        document.getElementById('people_count').innerText = `Сейчас людей: ${data.people_count}`
+                        document.getElementById('temperature').innerText = `Температура воздуха: ${data.temperature}`
+                        document.getElementById('humidity').innerText = `Влажность воздуха: ${data.humidity}`
+                    }
+                })
+            }
+
+            setInterval(getActualData, 10000)
         });
 
     </script>
