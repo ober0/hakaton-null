@@ -2,7 +2,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Админ-панель</title>
+    <style>
+        .button1{
+            border: none !important;
+        }
+    </style>
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
     <link rel="stylesheet" href="{% static 'main/css/index.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
@@ -28,8 +34,9 @@
        </div>
 
 
-       <div class="block2">
-        <h3>Данные в реальном времени:</h3>
+       <div class="block2" style="display: block">
+           <div class="data">
+               <h3>Данные в реальном времени:</h3>
         <p id="people_count">Сейчас людей: {{ people_count }}</p>
         <p id="humidity">Влажность воздуха: {{ humidity }}</p>
         <p id="temperature">Температура воздуха: {{ temperature }}</p>
@@ -43,8 +50,21 @@
                <p>Через 15мин. :</p>
                <p id="min15">...</p>
            </div>
+               </div>
+           <hr>
+               <div class="buttons">
+            <input style="width: 90%" url="/admin/" type="button" value="Панель администратора" class="button1 btn btn-primary">
+                   <br><br>
+            <input style="width: 90%" url="/relations/question/response/" type="button" value="Обращения студентов" class="button1 btn btn-success">
+                   <br><br>
+            <input style="width: 90%" url="/admin/main/nutrition/" type="button" value="Оценки столовой" class="button1 btn btn-info">
+                   <br><br>
+        </div>
+           </div>
+
 
        </div>
+
 
        
     </div> 
@@ -69,6 +89,8 @@
 <script>
         document.addEventListener('DOMContentLoaded', function () {
 
+
+
             document.querySelectorAll('.button1').forEach(btn => {
                 btn.addEventListener('click', function () {
                     let url = btn.getAttribute('url')
@@ -89,14 +111,20 @@
                     return response.json();
                 })
                 .then(data => {
-                    document.getElementById('min5').innerText = data['5m']
-                    document.getElementById('min15').innerText = data['15m']
+                    if (!data.success){
+                        setTimeout(fetchDataWithRetry, 5000);
+                    }
+                    else {
+                        document.getElementById('min5').innerText = data['5m']
+                        document.getElementById('min15').innerText = data['15m']
+                    }
+
 
                 })
                 .catch(error => {
                     console.error('Request failed, retrying in 1 second:', error);
                     // Если запрос не удался, повторяем через 1 секунду
-                    setTimeout(fetchDataWithRetry, 1000);
+                    setTimeout(fetchDataWithRetry, 5000);
                 });
             }
             fetchDataWithRetry()

@@ -128,6 +128,8 @@ def resultPredict(request, taskId):
     if status == 'SUCCESS':
         data = result.result
         print(data)
+    else:
+        return JsonResponse({'success':False})
     return JsonResponse(data)
 
 
@@ -146,7 +148,7 @@ def getActualData(request, place):
             }
 
             return JsonResponse(context)
-        except:
+        except Exception as e:
             return JsonResponse({
                 'success': False,
                 'error': str(e)

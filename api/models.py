@@ -1,5 +1,7 @@
 from django.db import models
 import pytz
+from datetime import datetime
+
 
 # Указываем Московскую временную зону
 moscow_time = pytz.timezone('Europe/Moscow')
@@ -51,7 +53,7 @@ class Noice(models.Model):
 
 
 class PeopleData(models.Model):
-    datetime = models.DateTimeField(null=False)
+    datetime = models.DateTimeField(null=False, default=datetime.now(moscow_time))
     place = models.CharField(max_length=50, null=False)
     people_count = models.IntegerField(null=False)
 

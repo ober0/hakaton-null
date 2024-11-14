@@ -7,8 +7,9 @@ def count_people(place, filename, file_content):
     layer_names = yolo_net.getLayerNames()
     output_layers = [layer_names[i - 1] for i in yolo_net.getUnconnectedOutLayers()]
 
-    # Загрузка изображения
-    image = cv2.imread("photo.jpg")
+    # Преобразуем фото в массив для OpenCV
+    nparr = np.frombuffer(file_content, np.uint8)
+    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     height, width, channels = image.shape
 
     # Преобразуем изображение в формат, подходящий для YOLO
@@ -61,10 +62,15 @@ def count_people(place, filename, file_content):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+    # Сохраняем изображение с детекцией
+    result_filename = f"result_{filename}"
+    cv2.imwrite(result_filename, image)
+
     # Подсчитаем количество людей (класс 0 — это люди)
     print(f"Number of people detected: {num_people}")
 
     return num_people
 
+# Пример использования
 with open('photo.jpg', 'rb') as f:
     count_people('floor4', f.name, f.read())

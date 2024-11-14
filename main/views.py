@@ -2,9 +2,9 @@ import base64
 import matplotlib
 import pytz
 from django.http import JsonResponse
-from .models import Question
+from .models import Question, Nutrition
 matplotlib.use('Agg')
-from datetime import timezone, timedelta
+from datetime import timezone, timedelta, datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import io
@@ -16,6 +16,7 @@ from api.models import PeopleData, Humidity, Temperature
 from django.utils import timezone
 from django.conf import settings
 import requests
+from .tasks import send_email
 
 def home(request):
     return redirect('administration_question')
@@ -137,10 +138,18 @@ def viewData(request):
         # Преобразуем изображение в base64 строку
         image_data = base64.b64encode(buf.read()).decode('utf-8')
         buf.close()
-
-        people = PeopleData.objects.filter(place=place).latest('datetime')
-        humidity = Humidity.objects.filter(place=place).latest('datetime')
-        temperature = Temperature.objects.filter(place=place).latest('datetime')
+        try:
+            people = PeopleData.objects.filter(place=place).latest('datetime')
+        except PeopleData.DoesNotExist:
+            people = None
+        try:
+            humidity = Humidity.objects.filter(place=place).latest('datetime')
+        except Humidity.DoesNotExist:
+            humidity = None
+        try:
+            temperature = Temperature.objects.filter(place=place).latest('datetime')
+        except Temperature.DoesNotExist:
+            temperature = None
         # Передаем данные в шаблон
         context = {
             'image_data': image_data,
@@ -159,21 +168,88 @@ def question(request):
         return render(request, 'main/question.html')
     else:
         data = request.POST
-
         name = data['name']
         email = data['email']
         subject = data['rating']
         message = data['message']
-
         try:
-            question = Question(name=name, email=email, subject=subject, message=message)
-            question.save()
-        except:
-            pass
+            questions = Question(name=name, email=email, subject=subject, message=message, datetime=datetime.now(pytz.timezone('Europe/Moscow')))
+            questions.save()
+        except Exception as ex:
+            print('ex:', ex)
 
         return redirect('/')
 def nutrition(request):
     if request.method == 'GET':
         return render(request, 'main/nutrition.html')
     else:
-        return JsonResponse({})
+        data = request.POST
+        name = data['name']
+        email = data['email']
+        subject = data['subject']
+        message = data['message']
+        try:
+            nutrition = Nutrition(name=name, email=email, rating=subject, message=message, datetime=datetime.now(pytz.timezone('Europe/Moscow')))
+            nutrition.save()
+        except Exception as ex:
+            print('ex:', ex)
+
+        return redirect('/relations/nutrition/')
+
+
+@user_passes_test(lambda u: u.is_superuser, login_url='/admin/login/')
+def questions_response(request):
+    questions = Question.objects.filter(status='Открыто').all()
+
+    # Создаем список словарей для удобства
+    questions_data = []
+    for q in questions:
+        questions_data.append({
+            'id': q.id,
+            'name': q.name,
+            'theme': q.subject
+        })
+
+    context = {
+        'questions_data': questions_data
+    }
+    return render(request, 'main/question_response.html', context)
+
+
+@user_passes_test(lambda u: u.is_superuser, login_url='/admin/login/')
+def question_response(request, id):
+    question = Question.objects.filter(id=id).get()
+    context = {
+        'id': question.id,
+        'name': question.name,
+        'datetime': question.datetime,
+        'email': question.email,
+        'theme': question.subject,
+        'message': question.message
+    }
+
+    return render(request, 'main/question_response_once.html', context)
+
+@user_passes_test(lambda u: u.is_superuser, login_url='/admin/login/')
+def admin_response(request, id):
+    if request.method == 'POST':
+        data = request.POST
+        response = data.get('response')
+        question = Question.objects.filter(id=id).get()
+
+        name = question.name
+        email = question.email
+
+        header = f'{name}, администрация колледжа ответила на ваше обращение'
+        text = response
+
+        task = send_email.delay(email, text, header)
+
+        try:
+            question = Question.objects.filter(id=id).get()
+            question.status = 'Закрыто'
+            question.save()
+        except:
+            pass
+
+        return redirect('questions_response')

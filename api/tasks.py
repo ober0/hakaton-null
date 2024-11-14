@@ -70,7 +70,11 @@ def count_people(place, filename, file_content, time):
     except AttributeError:
         num_people = 0
     try:
-        people_data = PeopleData(place=place, people_count=num_people, datetime=datetime.strptime(time, "%Y-%m-%d %H:%M:%S"))
+        try:
+            time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
+            people_data = PeopleData(place=place, people_count=num_people, datetime=time)
+        except:
+            people_data = PeopleData(place=place, people_count=num_people)
         people_data.save()
         return {'success': True, 'num_people': num_people}
     except Exception as e:

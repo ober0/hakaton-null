@@ -128,4 +128,10 @@ padding: 10px;
         width: 100%;
     }
 }
-Этот
+.pointer{
+    cursor: pointer;
+}
+
+.body{
+    min-height: 500px;
+}

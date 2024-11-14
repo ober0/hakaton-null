@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
+
+* {
+
+font-family: 'PT Sans';
+}
+
+body, .all {
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Убедитесь, что родитель занимает всю высоту экрана */
+    margin: 0;
+}
+body {
+    background: rgb(114, 154, 224);
+    background-image: url(background.png) ;
+    justify-content: center; /* выравнивание элемента по главной оси */
+    align-items: center;
+    min-height: 100vh; /* мин. высота элемента, где vh = 1 единица vh равна 1% высоты окна браузера. */
+    backdrop-filter: blur(5px);
+    margin: 0;
+}
+
+
+*{}
+.contact-container {
+display: block;
+    width: 50%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9; /* Светло-серый фон */
+    border: 3px solid #1395eb75; /* Тонкая рамка */
+    border-radius:  20px; /* Округлые углы */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Легкая тень */
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 20;
+}
+
+/* Заголовок и текст */
+.contact-container h2 {
+    text-align: center;
+    color: #333;
+}
+
+.contact-container p {
+    text-align: center;
+    color: #666;
+}
+
+/* Стили для формы */
+#contactForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* #contactForm label {
+    font-weight: bold;
+    color: #333;
+}
+
+#contactForm input, #contactForm textarea, #contactForm button {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#contactForm input, #contactForm textarea {
+    width: 100%;
+}
+
+#contactForm button {
+    background-color: #4CAF50; /* Зеленая кнопка */
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#contactForm button:hover {
+    background-color: #45a049;
+}
+
+
+/* nav a {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 15px;
+    transition: background 0.3s;
+}
+.nav header__menu:hover {
+    background: #575757;
+} */
+.button_header {
+
+    width: 196px;
+    height: 46px;
+    background-color: #FF6A00;
+    border-radius: 3px;
+    color: white;
+    transition: background 0.3s;
+    border: 0;
+    font-family: 'PT Sans';
+    font-size: 16px;
+    cursor: pointer;
+
+}
+
+.button_header:hover {
+    background-color: #ffffff;
+    color: #FF6A00;
+    border: 1px solid #e28f54 ;
+}
+
+.all {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
